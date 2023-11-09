@@ -9,7 +9,7 @@ const LINE_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
 const kafka = new Kafka({
   clientId: "my-app",
-  brokers: ["localhost:9092", "localhost:9092"],
+  brokers: ["localhost:9092"],
 });
 
 const consumer = kafka.consumer({ groupId: "message-group" });
@@ -23,6 +23,7 @@ const run = async () => {
   });
 
   await consumer.run({
+    partitionsConsumedConcurrently: 1,
     eachMessage: async ({ topic, partition, message }) => {
       const messageData = JSON.parse(message.value.toString());
 
