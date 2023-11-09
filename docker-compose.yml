@@ -15,16 +15,22 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      # - KAFKA_LISTENERS=PLAINTEXT://:9092
-      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-
-      # - ALLOW_PLAINTEXT_LISTENER=yes
-
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_REPLICATION_FACTOR: 2
+      KAFKA_REPLICATION_FACTOR: 1
       KAFKA_BROKER_ID: 1
     depends_on:
       - zookeeper
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 200M
+        reservations:
+          cpus: "0.25"
+          memory: 20M
 
   kafka2:
     image: "wurstmeister/kafka:latest"
@@ -35,17 +41,23 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9094,OUTSIDE://0.0.0.0:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      # - KAFKA_LISTENERS=PLAINTEXT://:9092
-      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-
-      # - ALLOW_PLAINTEXT_LISTENER=yes
-
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_REPLICATION_FACTOR: 2
+      KAFKA_REPLICATION_FACTOR: 1
       KAFKA_BROKER_ID: 2
     depends_on:
       - zookeeper
       - kafka1
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 200M
+        reservations:
+          cpus: "0.25"
+          memory: 20M
 
   kafka3:
     image: "wurstmeister/kafka:latest"
@@ -56,31 +68,37 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9095,OUTSIDE://0.0.0.0:9094
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      # - KAFKA_LISTENERS=PLAINTEXT://:9092
-      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-
-      # - ALLOW_PLAINTEXT_LISTENER=yes
-
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_REPLICATION_FACTOR: 2
+      KAFKA_REPLICATION_FACTOR: 1
       KAFKA_BROKER_ID: 3
     depends_on:
       - zookeeper
       - kafka1
       - kafka2
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    container_name: kafdrop
-    restart: "no"
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka1:9093"
-    depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 200M
+        reservations:
+          cpus: "0.25"
+          memory: 20M
+
+  # kafdrop:
+  #   image: obsidiandynamics/kafdrop
+  #   container_name: kafdrop
+  #   restart: "no"
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     KAFKA_BROKERCONNECT: "kafka1:9093"
+  #   depends_on:
+  #     - kafka1
+  #     - kafka2
+  #     - kafka3
 
   db:
     image: mysql:latest
@@ -94,18 +112,18 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadmin
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: root
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin:latest
+  #   container_name: phpmyadmin
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_PORT: 3306
+  #     PMA_USER: root
+  #     PMA_PASSWORD: root
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - db
 
 volumes:
   mysql_data:
