@@ -1,15 +1,11 @@
 const express = require("express");
-const { Kafka } = require("kafkajs");
+const { v4: uuidv4 } = require("uuid");
+const { kafka } = require("./libs/kafka");
 const { Order, Product, sequelize } = require("./schema");
 
 const app = express();
 app.use(express.json());
 const port = 8000;
-
-const kafka = new Kafka({
-  clientId: "my-app",
-  brokers: ["localhost:9092"],
-});
 
 const producer = kafka.producer();
 
@@ -66,6 +62,7 @@ app.post("/api/placeorder", async (req, res) => {
     // create order
     const newOrder = await Order.create(
       {
+        orderRef: uuidv4(),
         userLineUid: userId,
         productId,
         status: "pending",
@@ -79,6 +76,7 @@ app.post("/api/placeorder", async (req, res) => {
       messages: [
         {
           value: JSON.stringify({
+            orderRef: newOrder.orderRef,
             productName: product.name,
             userLineUid: userId,
             orderId: newOrder.id,

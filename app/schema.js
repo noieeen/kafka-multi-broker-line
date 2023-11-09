@@ -1,4 +1,4 @@
-const { DataTypes, Sequelize } = require( "sequelize");
+const { DataTypes, Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize("kafka_tutorial", "root", "root", {
   host: "localhost",
@@ -6,6 +6,10 @@ const sequelize = new Sequelize("kafka_tutorial", "root", "root", {
 });
 
 const Order = sequelize.define("orders", {
+  orderRef: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   userLineUid: {
     type: DataTypes.STRING,
     allowNull: false,

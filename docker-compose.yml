@@ -69,6 +69,19 @@ services:
       - kafka1
       - kafka2
 
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka1:9093"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+
   db:
     image: mysql:latest
     container_name: mysql_db

@@ -1,4 +1,4 @@
-const { Kafka } = require("kafkajs");
+const { kafka } = require("./libs/kafka");
 const { Order } = require("./schema.js");
 const { default: axios } = require("axios");
 
@@ -7,15 +7,9 @@ require("dotenv").config();
 const LINE_API_URL = "https://api.line.me/v2/bot/message/push";
 const LINE_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
-const kafka = new Kafka({
-  clientId: "my-app",
-  brokers: ["localhost:9092"],
-});
-
 const consumer = kafka.consumer({ groupId: "message-group" });
 
 const run = async () => {
-  //   console.log("LAC", process.env.LINE_CHANNEL_ACCESS_TOKEN);
   await consumer.connect();
   await consumer.subscribe({
     topic: "message-order",
@@ -37,15 +31,16 @@ const run = async () => {
         messages: [
           {
             type: "text",
-            text: `Your order product ${messageData.productName} successful!`,
+            text: `Order id: ${messageData.orderRef}, Your order product ${messageData.productName} successful!`,
           },
         ],
       };
 
       try {
-        const response = await axios.post(LINE_API_URL, body, {
-          headers,
-        });
+        // const response = await axios.post(LINE_API_URL, body, {
+        //   headers,
+        // });
+        console.log("response", body);
 
         await Order.update(
           {
